@@ -1,38 +1,38 @@
 name: ${name}
 main: com.imjustdoom.villagerinabucket.VillagerInABucket
 version: ${version}
-api-version: '26.2'
-description: Plugin version of Villager In A Bucket
+api-version: '26.3'
+description: 村民装起来，让你用桶装起并搬运村民、僵尸村民和流浪商人。
 author: JustDoom
 website: https://imjustdoom.com
 folia-supported: true
-soft-depend: [ BetterReload, WorldGuard, GriefPrevention ]
+softdepend: [ BetterReload, WorldGuard, GriefPrevention ]
 
 permissions:
   villagerinabucket.commands:
     default: op
-    description: Allows access to the plugins commands
+    description: 允许使用村民装起来的管理命令。
 
   villagerinabucket.villager.pickup:
     default: true
-    description: Allows picking up Villagers in buckets
+    description: 允许用桶装起村民。
   villagerinabucket.zombie_villager.pickup:
     default: true
-    description: Allows picking up Zombie Villagers in buckets
+    description: 允许用桶装起僵尸村民。
   villagerinabucket.wandering_trader.pickup:
     default: true
-    description: Allows picking up Wandering Traders in buckets
+    description: 允许用桶装起流浪商人。
 
   villagerinabucket.villager.place:
     default: true
-    description: Allows placing Villagers in buckets
+    description: 允许从桶里放出村民。
   villagerinabucket.zombie_villager.place:
     default: true
-    description: Allows placing Zombie Villagers in buckets
+    description: 允许从桶里放出僵尸村民。
   villagerinabucket.wandering_trader.place:
     default: true
-    description: Allows placing Wandering Traders in buckets
+    description: 允许从桶里放出流浪商人。
 
   villagerinabucket.harm-reputation:
     default: false
-    description: Should reputation be harmed when picking up villagers
+    description: 用桶装起村民时降低玩家的村民声望。

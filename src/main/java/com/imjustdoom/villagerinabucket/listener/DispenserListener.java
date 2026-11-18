@@ -46,7 +46,7 @@ public class DispenserListener implements Listener {
         LivingEntity entity = BucketUtil.entityFromBucket(itemStack, block.getWorld());
 
         if (!BucketUtil.canDispenserPlace(entity)) {
-            VLog.log(String.format("Attempted to place disabled villager (%s) at %s", entity.getType(), targetBlock.getLocation()));
+            VLog.log(String.format("发射器配置已禁用放出 %s（位置 %s）。", entity.getType(), targetBlock.getLocation()));
             return;
         }
 
@@ -86,7 +86,7 @@ public class DispenserListener implements Listener {
             if (!BucketUtil.hasPossibilityOfPickingUp(entity, itemStack)) continue;
 
             if (!BucketUtil.canDispenserPickup(entity)) {
-                VLog.log(String.format("Attempted to pickup disabled villager (%s) at %s", entity.getType(), targetBlock.getLocation()));
+                VLog.log(String.format("发射器配置已禁用装起 %s（位置 %s）。", entity.getType(), targetBlock.getLocation()));
                 return;
             }
 

@@ -93,7 +93,7 @@ public class BucketUtil {
                 }
                 itemStack.setData(DataComponentTypes.CUSTOM_MODEL_DATA, CustomModelData.customModelData().addString("wandering_trader").build());
             }
-            default -> throw new IllegalStateException("Unexpected value: " + entity);
+            default -> throw new IllegalStateException("遇到不支持的实体类型：" + entity.getType());
         }
         itemStack.editMeta(meta -> {
             switch (entity) {
@@ -113,37 +113,72 @@ public class BucketUtil {
                     villager.setMemory(MemoryKey.POTENTIAL_JOB_SITE, null);
                     villager.setMemory(MemoryKey.MEETING_POINT, null);
 
-                    meta.itemName(Component.text("Villager In A Bucket"));
+                    meta.itemName(Component.text("村民桶"));
                     List<Component> lore = new ArrayList<>();
-                    lore.add(Component.text("Level: " + villager.getVillagerLevel(), TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
-                    lore.add(Component.text("Region: " + villager.getVillagerType().getKey(), TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
-                    lore.add(Component.text("Profession: ", TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC).append(Component.translatable(villager.getProfession().translationKey())));
+                    lore.add(Component.text("等级：" + villager.getVillagerLevel(), TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
+                    lore.add(Component.text("地区：" + regionName(villager.getVillagerType()), TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
+                    lore.add(Component.text("职业：", TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC).append(professionName(villager.getProfession())));
                     if (!villager.isAdult()) {
-                        lore.add(Component.text("Baby", TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
+                        lore.add(Component.text("幼年", TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
                     }
                     meta.lore(lore);
                 }
                 case ZombieVillager zombieVillager -> {
-                    meta.itemName(Component.text("Zombie Villager In A Bucket"));
+                    meta.itemName(Component.text("僵尸村民桶"));
                     List<Component> lore = new ArrayList<>();
                     if (!zombieVillager.isAdult()) {
-                        lore.add(Component.text("Baby", TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
+                        lore.add(Component.text("幼年", TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
                     }
                     meta.lore(lore);
                 }
                 case WanderingTrader wanderingTrader -> {
-                    meta.itemName(Component.text("Wandering Trader In A Bucket"));
+                    meta.itemName(Component.text("流浪商人桶"));
                     List<Component> lore = new ArrayList<>();
                     if (!wanderingTrader.isAdult()) {
-                        lore.add(Component.text("Baby", TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
+                        lore.add(Component.text("幼年", TextColor.color(Color.GRAY.asRGB()), TextDecoration.ITALIC));
                     }
                     meta.lore(lore);
                 }
-                default -> throw new IllegalStateException("Unexpected value: " + entity);
+                default -> throw new IllegalStateException("遇到不支持的实体类型：" + entity.getType());
             }
             meta.getPersistentDataContainer().set(VillagerInABucket.get().key, PersistentDataType.BYTE_ARRAY, Bukkit.getUnsafe().serializeEntity(entity));
             meta.setMaxStackSize(1);
         });
+    }
+
+    private static String regionName(Villager.Type type) {
+        return switch (type.key().asString()) {
+            case "minecraft:desert" -> "沙漠";
+            case "minecraft:jungle" -> "丛林";
+            case "minecraft:plains" -> "平原";
+            case "minecraft:savanna" -> "热带草原";
+            case "minecraft:snow" -> "雪原";
+            case "minecraft:swamp" -> "沼泽";
+            case "minecraft:taiga" -> "针叶林";
+            default -> type.key().asString();
+        };
+    }
+
+    private static Component professionName(Villager.Profession profession) {
+        String name = switch (profession.key().asString()) {
+            case "minecraft:armorer" -> "盔甲匠";
+            case "minecraft:butcher" -> "屠夫";
+            case "minecraft:cartographer" -> "制图师";
+            case "minecraft:cleric" -> "牧师";
+            case "minecraft:farmer" -> "农民";
+            case "minecraft:fisherman" -> "渔夫";
+            case "minecraft:fletcher" -> "制箭师";
+            case "minecraft:leatherworker" -> "皮匠";
+            case "minecraft:librarian" -> "图书管理员";
+            case "minecraft:mason" -> "石匠";
+            case "minecraft:nitwit" -> "绿袍村民";
+            case "minecraft:none" -> "无职业";
+            case "minecraft:shepherd" -> "牧羊人";
+            case "minecraft:toolsmith" -> "工具匠";
+            case "minecraft:weaponsmith" -> "武器匠";
+            default -> null;
+        };
+        return name == null ? Component.translatable(profession.translationKey()) : Component.text(name);
     }
 
     public static LivingEntity entityFromBucket(ItemStack itemStack, World world) {
@@ -169,7 +204,7 @@ public class BucketUtil {
                         entity.getWorld().playSound(entity.getLocation(), Sound.ENTITY_WANDERING_TRADER_YES, 1.0f, 1.0f);
                     }
                 }
-                default -> throw new IllegalStateException("Unexpected value: " + entity);
+                default -> throw new IllegalStateException("遇到不支持的实体类型：" + entity.getType());
             }
         }
     }
@@ -231,10 +266,9 @@ public class BucketUtil {
             itemStack.unsetData(DataComponentTypes.CUSTOM_MODEL_DATA);
             itemStack.editMeta(meta -> {
                 meta.itemName(null);
-                if (meta.hasCustomName()) { // TODO: Make custom item names rename villager
-                    String customName = ((TextComponent) meta.customName()).content();
-                    if (customName.equals("Villager In A Bucket") || customName.equals("Zombie Villager In A Bucket") || customName.equals("Wandering Trader In A Bucket")) {
-                        meta.customName(null);
+                if (meta.customName() instanceof TextComponent customName) {
+                    switch (customName.content()) {
+                        case "Villager In A Bucket", "Zombie Villager In A Bucket", "Wandering Trader In A Bucket" -> meta.customName(null);
                     }
                 }
                 meta.getPersistentDataContainer().remove(VillagerInABucket.get().key);

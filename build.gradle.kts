@@ -6,6 +6,8 @@ plugins {
     id("xyz.jpenilla.run-paper") version "3.1.0"
 }
 
+val targetMinecraft = "26.3"
+
 group = "com.imjustdoom.villagerinabucket"
 if (!project.hasProperty("buildWithoutGitHash")) {
     fun getShortCommitHash(): Provider<String> = providers.exec {
@@ -15,6 +17,7 @@ if (!project.hasProperty("buildWithoutGitHash")) {
 }
 
 repositories {
+    mavenCentral()
     maven {
         name = "papermc"
         url = uri("https://repo.papermc.io/repository/maven-public/")
@@ -34,7 +37,7 @@ dependencies {
     compileOnly("com.sk89q.worldguard:worldguard-bukkit:7.0.19")
     compileOnly("com.github.GriefPrevention:GriefPrevention:16.18.7")
     implementation("org.bstats:bstats-bukkit:3.1.0")
-    paperweight.paperDevBundle("26.2.build.+")
+    paperweight.paperDevBundle("$targetMinecraft.build.227-stable")
 }
 
 java {
@@ -42,11 +45,24 @@ java {
     withJavadocJar()
 }
 
+val resourcePackZip by tasks.registering(Zip::class) {
+    archiveFileName.set(rootProject.name + "Pack-" + targetMinecraft + "-zh-cn.zip")
+    destinationDirectory.set(layout.buildDirectory.dir("distributions"))
+    from("resourcepack")
+    from("LICENSE")
+    isPreserveFileTimestamps = false
+    isReproducibleFileOrder = true
+}
+
 tasks {
+    withType<JavaCompile>().configureEach {
+        options.encoding = "UTF-8"
+    }
+
     javadoc {
         options.encoding = "UTF-8"
         (options as StandardJavadocDocletOptions).apply {
-            links("https://jd.papermc.io/paper/26.2/")
+            links("https://jd.papermc.io/paper/$targetMinecraft/")
             title = "${project.name} ${project.version} API"
             addStringOption("Xdoclint:none", "-quiet") // Suppress warnings for missing Javadoc
         }
@@ -62,6 +78,9 @@ tasks {
     }
 
     processResources {
+        filteringCharset = "UTF-8"
+        from("LICENSE") { into("META-INF") }
+
         val pluginName = rootProject.name
         val pluginVersion = project.version
         val pluginGroup = project.group
@@ -76,7 +95,7 @@ tasks {
     }
 
     runServer {
-        minecraftVersion("26.2")
+        minecraftVersion(targetMinecraft)
         downloadPlugins {
             modrinth("luckperms", "v5.5.71-bukkit")
         }
@@ -86,6 +105,7 @@ tasks {
     build {
         dependsOn(shadowJar)
         dependsOn(javadoc)
+        dependsOn(resourcePackZip)
     }
 }
 

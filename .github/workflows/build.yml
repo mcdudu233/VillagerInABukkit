@@ -4,6 +4,10 @@ on:
     branches: [ master ]
     paths:
       - "src/**"
+      - "resourcepack/**"
+      - "settings.gradle.kts"
+      - ".github/workflows/build.yml"
+      - "LICENSE"
       - "build.gradle.kts"
       - "gradle.properties"
   workflow_dispatch:
@@ -16,13 +20,14 @@ jobs:
       - name: Set up JDK
         uses: actions/setup-java@v4
         with:
-          java-version: "21"
+          java-version: "25"
           distribution: "temurin"
       - name: Build with gradle
-        run: ./gradlew clean shadowJar
-      - name: Upload artifact
+        run: ./gradlew clean shadowJar resourcePackZip -PbuildWithoutGitHash
+      - name: Upload plugin and resource pack
         uses: actions/upload-artifact@v4
         with:
-          name: artifact
+          name: VillagerInABukkit-Paper-26.3
           path: |
             build/libs/VillagerInABukkit-paper-*.jar
+            build/distributions/VillagerInABukkitPack-*.zip

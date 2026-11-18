@@ -3,6 +3,7 @@ package com.imjustdoom.villagerinabucket;
 import com.imjustdoom.villagerinabucket.listener.DispenserListener;
 import com.imjustdoom.villagerinabucket.listener.InteractListener;
 import com.imjustdoom.villagerinabucket.listener.ReloadListener;
+import com.imjustdoom.villagerinabucket.listener.protection.GriefPreventionProtectionListener;
 import com.imjustdoom.villagerinabucket.listener.protection.WorldGuardProtectionListener;
 import com.mojang.brigadier.Command;
 import com.mojang.brigadier.tree.LiteralCommandNode;
@@ -52,15 +53,15 @@ public class VillagerInABucket extends JavaPlugin implements Listener {
             LiteralCommandNode<CommandSourceStack> buildCommand = Commands.literal("villagerinabucket")
                     .requires(sender -> sender.getSender().hasPermission("villagerinabucket.commands"))
                     .executes(ctx -> {
-                        ctx.getSource().getSender().sendMessage(Component.text(PREFIX + " VillagerInABucket version " + getPluginMeta().getVersion(), TEXT_COLOR));
+                        ctx.getSource().getSender().sendMessage(Component.text(PREFIX + " 村民装起来 · 版本 " + getPluginMeta().getVersion(), TEXT_COLOR));
                         return Command.SINGLE_SUCCESS;
                     }).then(Commands.literal("reload").executes(ctx -> {
                         Config.init();
-                        ctx.getSource().getSender().sendMessage(Component.text(PREFIX + " VillagerInABucket has been reloaded!", TEXT_COLOR));
+                        ctx.getSource().getSender().sendMessage(Component.text(PREFIX + " 村民装起来的配置已重新加载。", TEXT_COLOR));
                         return Command.SINGLE_SUCCESS;
                     })).then(Commands.literal("forceplace").executes(ctx -> {
                         if (!(ctx.getSource().getSender() instanceof Player player)) {
-                            ctx.getSource().getSender().sendMessage(Component.text(PREFIX + " You must be a player to run this command", TEXT_COLOR));
+                            ctx.getSource().getSender().sendMessage(Component.text(PREFIX + " 请在游戏里使用这条命令，或在命令后加上玩家名。", TEXT_COLOR));
                             return Command.SINGLE_SUCCESS;
                         }
 
@@ -78,11 +79,11 @@ public class VillagerInABucket extends JavaPlugin implements Listener {
 
         if (pluginManager.isPluginEnabled("WorldGuard")) {
             pluginManager.registerEvents(new WorldGuardProtectionListener(), this);
-            getLogger().info("Detected WorldGuard, registered listener integration");
+            getLogger().info("已接入 WorldGuard 的区域保护。");
         }
         if (pluginManager.isPluginEnabled("GriefPrevention")) {
-            pluginManager.registerEvents(new WorldGuardProtectionListener(), this);
-            getLogger().info("Detected GriefPrevention, registered listener integration");
+            pluginManager.registerEvents(new GriefPreventionProtectionListener(), this);
+            getLogger().info("已接入 GriefPrevention 的领地保护。");
         }
 
         pluginManager.registerEvents(this, this);
@@ -91,7 +92,7 @@ public class VillagerInABucket extends JavaPlugin implements Listener {
 
         if (pluginManager.isPluginEnabled("BetterReload")) {
             pluginManager.registerEvents(new ReloadListener(), this);
-            getLogger().info("Detected BetterReload, registered listener integration");
+            getLogger().info("已接入 BetterReload 的配置重载。");
         }
 
         Metrics metrics = new Metrics(this, 25722);
@@ -107,7 +108,7 @@ public class VillagerInABucket extends JavaPlugin implements Listener {
                     VLog.LOG_FILE_WRITER.close();
                     VLog.LOG_FILE_WRITER = null;
                 } catch (IOException e) {
-                    getLogger().severe("Unable to close villager action file logger");
+                    getLogger().severe("关闭村民操作日志失败。");
                 }
             }
         }
@@ -121,7 +122,7 @@ public class VillagerInABucket extends JavaPlugin implements Listener {
         try {
             event.getPlayer().sendResourcePacks(ResourcePackInfo.resourcePackInfo(UUID.fromString(Config.RESOURCE_PACK_ID), URI.create(Config.RESOURCE_PACK_URL), Config.RESOURCE_PACK_HASH));
         } catch (IllegalArgumentException exception) {
-            getLogger().severe("The UUID '" + Config.RESOURCE_PACK_ID + "' is invalid");
+            getLogger().severe("发送资源包失败，请检查配置里的 resource-pack-id、resource-pack-url 和 resource-pack-hash。");
         }
     }
 
@@ -129,7 +130,7 @@ public class VillagerInABucket extends JavaPlugin implements Listener {
         ItemStack itemStack = player.getInventory().getItem(player.getActiveItemHand());
 
         if (!BucketUtil.hasEntityData(itemStack)) {
-            sender.sendMessage(Component.text(PREFIX + " No entity data found on item", TEXT_COLOR));
+            sender.sendMessage(Component.text(PREFIX + " 请拿着装有村民、僵尸村民或流浪商人的桶。", TEXT_COLOR));
             return Command.SINGLE_SUCCESS;
         }
 
@@ -137,9 +138,9 @@ public class VillagerInABucket extends JavaPlugin implements Listener {
         Location location = player.getLocation();
 
         if (BucketUtil.spawnVillagerFromBucket(entity, player, itemStack, location)) {
-            sender.sendMessage(Component.text(PREFIX + " Successfully force spawned entity", TEXT_COLOR));
+            sender.sendMessage(Component.text(PREFIX + " 已在玩家所在位置放出生物。", TEXT_COLOR));
         } else {
-            sender.sendMessage(Component.text(PREFIX + " Force spawn was cancelled by something, possibly a land protection or other plugin", TEXT_COLOR));
+            sender.sendMessage(Component.text(PREFIX + " 这里暂时放不出来，请试试换个位置，或检查领地权限。", TEXT_COLOR));
         }
 
         return Command.SINGLE_SUCCESS;

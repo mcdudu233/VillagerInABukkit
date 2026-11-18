@@ -1,6 +1,9 @@
 {
   "pack": {
-    "description": "Resource pack for the Villager In A Bukkit plugin",
-    "pack_format": 46
+    "description": "村民装起来 · 村民桶材质包",
+    "pack_format": 46,
+    "supported_formats": [46, 97],
+    "min_format": [46, 0],
+    "max_format": [97, 1]
   }
 }

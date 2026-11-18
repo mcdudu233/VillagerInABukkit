@@ -45,7 +45,7 @@ public class InteractListener implements Listener {
         if (!BucketUtil.hasPossibilityOfPickingUp(clicked, itemStack)) return;
 
         if (!BucketUtil.canPickup(player, clicked.getType())) {
-            player.sendMessage(Component.text("You are not allowed to pickup this villager"));
+            player.sendMessage(Component.text("你没有权限用桶装起这个生物。"));
             return;
         }
 
@@ -101,7 +101,7 @@ public class InteractListener implements Listener {
         LivingEntity entity = BucketUtil.entityFromBucket(itemStack, player.getWorld());
 
         if (!BucketUtil.canPlace(player, entity)) {
-            player.sendMessage(Component.text("You are not allowed to place this villager"));
+            player.sendMessage(Component.text("你没有权限从桶里放出这个生物。"));
             return;
         }
 

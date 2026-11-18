@@ -15,6 +15,6 @@ public class ReloadListener implements Listener {
     @EventHandler
     public void onReloadEvent(ReloadEvent event) {
         Config.init();
-        event.getCommandSender().sendMessage(VillagerInABucket.PREFIX + " VillagerInABucket has been reloaded!");
+        event.getCommandSender().sendMessage(VillagerInABucket.PREFIX + " 村民装起来的配置已重新加载。");
     }
 }

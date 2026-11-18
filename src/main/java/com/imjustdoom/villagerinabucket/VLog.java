@@ -39,7 +39,7 @@ public class VLog {
                         LOG_FILE_WRITER.write("[" + LocalDateTime.now().format(TIMESTAMP_FORMAT) + "] " + message + System.lineSeparator());
                         LOG_FILE_WRITER.flush();
                     } catch (IOException e) {
-                        VillagerInABucket.get().getLogger().severe("Unable to write to log file: " + e.getMessage());
+                        VillagerInABucket.get().getLogger().severe("写入村民操作日志失败： " + e.getMessage());
                     }
                 }
             }
